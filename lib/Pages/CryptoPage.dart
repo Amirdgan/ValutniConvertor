@@ -24,61 +24,62 @@ class _CryptoPageState extends State<CryptoPage> {
   String _toCurrency = 'USD';
   String _convertedAmount = '';
 
-  Future<void> _convertCrypto() async {
-    final String from = _fromCrypto;
-    final String to = _toCurrency;
+  // Статичные курсы обмена
+  final Map<String, Map<String, double>> _exchangeRates = {
+    'btc': {
+      'usd': 50000.0, // Примерный курс BTC к USD
+      'eur': 45000.0, // Примерный курс BTC к EUR
+    },
+    'eth': {
+      'usd': 4000.0, // Примерный курс ETH к USD
+      'eur': 3500.0, // Примерный курс ETH к EUR
+    },
+  };
+
+  void _convertCrypto() {
+    final String from = _fromCrypto.toLowerCase();
+    final String to = _toCurrency.toLowerCase();
     final double amount = double.tryParse(_amountController.text) ?? 0;
 
-    try {
-      final response = await http.get(Uri.parse(
-          'https://api.coingecko.com/api/v3/simple/price?ids=$from&vs_currencies=$to'));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final rate = data[from][to];
-        final converted = amount * rate;
-        setState(() {
-          _convertedAmount = converted.toStringAsFixed(2);
-        });
-      } else {
-        setState(() {
-          _convertedAmount = 'Ошибка';
-        });
-      }
-    } catch (e) {
+    if (_exchangeRates.containsKey(from) && _exchangeRates[from]!.containsKey(to)) {
+      final rate = _exchangeRates[from]![to]!;
+      final converted = amount * rate;
+      setState(() {
+        _convertedAmount = converted.toStringAsFixed(2);
+      });
+
+      // Показываем результат в SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Результат: $_convertedAmount $to',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          duration: Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.indigo[400],
+        ),
+      );
+    } else {
       setState(() {
         _convertedAmount = 'Ошибка';
       });
     }
   }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepPurpleAccent, // Темно-фиолетовый цвет
-        title: Text(
-          'Конвертер Криптовалют',
+        backgroundColor: Colors.indigo[400],
+        title: Text('Конвертер Криптовалют',
           style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,),),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => LoginPage()),
-            );
-          },
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(4.0),
-          child: Container(),
-        ),
-      ),
+            Navigator.pop(context);},),),
       backgroundColor: Colors.grey[100],
       body: SingleChildScrollView(
         child: Padding(
@@ -86,178 +87,152 @@ class _CryptoPageState extends State<CryptoPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              // Заголовок
-              Text(
-                'Конвертация',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple, // Цвет заголовка
-                ),
-              ),
+              Text('Конвертация',
+                style: TextStyle(fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.indigo[400]),),
               SizedBox(height: 16.0),
-
-              // Ввод суммы
-              Form(
-                key: _formKey,
-                child: TextFormField(
-                  controller: _amountController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    hintText: 'Введите сумму',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    prefixIcon: Icon(Icons.attach_money),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Введите сумму';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-
-              // Выбор Криптовалюты
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0), // Отступы внутри Card
+                  child: Form(
+                    key: _formKey,
+                    child: SizedBox(
+                      width: 350, // Установите желаемую ширину
+                      child: TextFormField(controller: _amountController, keyboardType: TextInputType.number,
+                        decoration: InputDecoration(hintText: 'Введите сумму',
+                          border: InputBorder.none, prefixIcon: Icon(Icons.attach_money),),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Введите сумму';}return null;},),),),),),
               SizedBox(height: 16.0),
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButton<String>(
-                      value: _fromCrypto,
-                      hint: Text('Из Криптовалюты'),
-                      isExpanded: true, // Занимает всю ширину
-                      items: <String>['BTC', 'ETH', 'USDT', 'BNB', 'ADA', 'DOGE']
-                          .map((String value) => DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      ))
-                          .toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _fromCrypto = newValue!;
-                        });
-                      },
-                    ),
-                  ),
-                  SizedBox(width: 16.0),
-                  Expanded(
-                    child: DropdownButton<String>(
+              Row(children: [Expanded(child: Card(elevation: 4, shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+                child: DropdownButtonFormField<String>(
+                  value: _fromCrypto,
+                  decoration: InputDecoration(hintText: 'Из валюты',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),),
+                  items: <String>['BTC','ETH']
+                      .map((String value) => DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),))
+                      .toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _fromCrypto = newValue!;});},),),),
+                SizedBox(width: 16.0),
+                Expanded(
+                  child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),),
+                    child: DropdownButtonFormField<String>(
                       value: _toCurrency,
-                      hint: Text('В Валюту'),
-                      isExpanded: true,
-                      items: <String>['USD', 'EUR', 'RUB', 'GBP']
+                      decoration: InputDecoration(hintText: 'В валюту',
+                        border: InputBorder.none, contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),),
+                      items: <String>['USD', 'EUR', 'RUB', 'GBP','JPU']
                           .map((String value) => DropdownMenuItem<String>(
                         value: value,
-                        child: Text(value),
-                      ))
+                        child: Text(value),))
                           .toList(),
                       onChanged: (String? newValue) {
                         setState(() {
-                          _toCurrency = newValue!;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-
-              // Кнопка конвертации
-              SizedBox(height: 32.0),
-              ElevatedButton(
-                onPressed: _convertCrypto,
-                style: ButtonStyle(
-                  backgroundColor:
-                  MaterialStateProperty.all<Color>(Colors.white), // Цвет кнопки
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                    EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-                  ),
-                  textStyle: MaterialStateProperty.all<TextStyle>(
-                    TextStyle(
-                      color: Colors.deepPurple, // Цвет текста на кнопке
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-                child: Text('Конвертировать'),
-              ),
-
-              // Результат конвертации
-              SizedBox(height: 32.0),
-              Text(
-                'Результат: $_convertedAmount $_toCurrency',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+                          _toCurrency = newValue!;});},),),),],),
+              SizedBox(height: 16.0),
+              Center(child: ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _convertCrypto();}},
+                  child: Text('Конвертировать'),
+                  style: ElevatedButton.styleFrom(primary: Colors.indigo[400],
+                    onPrimary: Colors.black,
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    textStyle:
+                    TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),),),],),),),
       bottomNavigationBar: SizedBox(
         height: 60,
         child: BottomAppBar(
-          color: Colors.deepPurpleAccent, // Темно-фиолетовый
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                icon: Icon(Icons.comment_bank, color: Colors.white),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ConversePage(), // Remove the user: user argument
-                    ),
-                  );
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.currency_bitcoin, color: Colors.white),
-                onPressed: () {
-                  // Переход на CryptoPage без использования user
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CryptoPage(), // Remove the user: user argument
-                    ),
-                  );
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.star, color: Colors.white),
-                onPressed: () {
-                  // Переход на CryptoPage без использования user
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => FauoritsPage(), // Remove the user: user argument
-                    ),
-                  );
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.work, color: Colors.white),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => WorkPage()),
-                  );
-                },
-              ),
-            ],
+          color: Colors.indigo[400],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            // Горизонтальные отступы
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.comment_bank, color: Colors.white),
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) =>
+                            ConversePage()), // Переход на страницу ConversePage
+                      );},),
+                  IconButton(
+                    icon: Icon(Icons.currency_bitcoin, color: Colors.white),
+                    onPressed: () {},
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.star, color: Colors.white),
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => FavoritesPage()),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.settings, color: Colors.white),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => WorkPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                ]
+            ),
           ),
         ),
       ),
     );
   }
 }
+
+
+
+
+
+  double convertCurrency(double amount, String fromCrypto, String toCurrency) {
+    // Пример коэффициентов конверсии (здесь должны быть реальные значения)
+    Map<String, double> conversionRates = {
+      'BTC': 60000, // Примерная цена BTC в USD
+      'ETH': 4000, // Примерная цена ETH в USD
+      // Добавьте остальные криптовалюты и их цены
+    };
+
+    // Преобразуем из криптовалюты в USD
+    double amountInUSD = amount * (conversionRates[fromCrypto] ?? 1);
+
+    // Здесь можно добавить логику для конвертации из USD в выбранную валюту
+    Map<String, double> fiatConversionRates = {
+      'USD': 1,
+      'EUR': 0.85, // Примерный курс USD к EUR
+      'RUB': 75, // Примерный курс USD к RUB
+      'GBP': 0.75, // Примерный курс USD к GBP
+    };
+
+    return amountInUSD * (fiatConversionRates[toCurrency] ?? 1);
+  }
+
 
 // Модель для представления конвертации
 class Conversion {

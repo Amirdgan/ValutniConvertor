@@ -33,7 +33,7 @@ class SignUpScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Регистрация', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.indigo,
+        backgroundColor: Colors.indigo[400],
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {

@@ -25,17 +25,12 @@ class _LoginPageState extends State<LoginPage> {
         onPressed: () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => InitialPage()),
-          );
-        },
-      ),
-      backgroundColor: Color(0xFF2E5DAB),
+            MaterialPageRoute(builder: (context) => InitialPage()),);},),
+      backgroundColor: Colors.indigo[400],
       bottom: PreferredSize(
         preferredSize: Size.fromHeight(4.0),
-        child: Container(),
-      ),
-    ),
-    backgroundColor: Color(0xFF2E5DAB),
+        child: Container(),),),
+    backgroundColor: Colors.indigo[400],
     body: Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -44,34 +39,24 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-
-
               TextFormField(
                 decoration: InputDecoration(
                   labelText: 'Имя пользователя',
                   labelStyle: TextStyle(color: Colors.white),
                   enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
+                    borderSide: BorderSide(color: Colors.white),),
                   focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
+                    borderSide: BorderSide(color: Colors.white),),
                   hintText: 'Введите имя пользователя',
-                  hintStyle: TextStyle(color: Colors.grey),
-                ),
+                  hintStyle: TextStyle(color: Colors.grey),),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Пожалуйста, введите имя пользователя';
-                  }
-                  return null;
-                },
+                    return 'Пожалуйста, введите имя пользователя';}
+                  return null;},
                 onSaved: (value) {
-                  _username = value!;
-                },
-                style: TextStyle(color: Colors.white), // White text for input
-              ),
+                  _username = value!;},
+                style: TextStyle(color: Colors.white), ),
               SizedBox(height: 20),
-
               TextFormField(
                 decoration: InputDecoration(
                   labelText: 'Пароль',
@@ -87,19 +72,13 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Пожалуйста, введите пароль';
-                  }
-                  return null;
-                },
+                    return 'Пожалуйста, введите пароль';}
+                  return null;},
                 onSaved: (value) {
-                  _password = value!;
-                },
+                  _password = value!;},
                 obscureText: true,
-                style: TextStyle(color: Colors.white), // White text for input
-              ),
-
+                style: TextStyle(color: Colors.white),),
               SizedBox(height: 30),
-
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
@@ -108,15 +87,11 @@ class _LoginPageState extends State<LoginPage> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ConversePage(),
-                      ),
-                    );
-                  }
-                },
-                child: Text('Войти', style: TextStyle(color: Colors.black)), // Black text on button
+                        builder: (context) => ConversePage(),),);}},
+                child: Text('Войти', style: TextStyle(color: Colors.white)), // Black text on button
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(
-                      Color(0xFFF59E0B)), // Orange color for button
+                      Color(0xDCE23FD)), // Orange color for button
                   padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
                       EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
                   textStyle: MaterialStateProperty.all<TextStyle>(

@@ -8,31 +8,23 @@ class InitialPage extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: <Widget>[
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.indigo!,
-                  Colors.indigo!,
-                  Colors.indigo!,
-                ],
-              ),
-            ),
-          ),
+      Container(
+      decoration: BoxDecoration(
+        color: Colors.indigo[400], // Установите один цвет
+      ),
+    ),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                SizedBox(height: 50), // Отступ сверху
+                SizedBox(height: 20), // Отступ сверху
                 // Логотип
                 Image.asset(
                   'assets/your_logo.png', // Замените на путь к вашему логотипу
                   height: 260,
                   width: 260,
                 ),
-                SizedBox(height: 0), // Расстояние после логотипа
+                SizedBox(height: 1), // Расстояние после логотипа
                 // Стильное название
                 RichText(
                   text: TextSpan(
@@ -43,8 +35,8 @@ class InitialPage extends StatelessWidget {
                       foreground: Paint()
                         ..shader = LinearGradient(
                           colors: <Color>[
-                            Colors.blueAccent,
-                            Colors.blue,
+                            Colors.black87,
+                            Colors.black,
                           ],
                         ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
                     ),
@@ -59,7 +51,7 @@ class InitialPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: 30), // Расстояние после названия
+                SizedBox(height: 25), // Расстояние после названия
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -67,7 +59,7 @@ class InitialPage extends StatelessWidget {
                   },
                   child: Text('Войти', style: TextStyle(fontSize: 18)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.indigo[400], // Цвет кнопки
+                    backgroundColor: Colors.indigo, // Цвет кнопки
                     foregroundColor: Colors.white, // Цвет текста
                     padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                     shape: RoundedRectangleBorder(
@@ -96,7 +88,7 @@ class InitialPage extends StatelessWidget {
               clipper: WaveClipper(),
               child: Container(
                 height: 200, // Высота волны
-                color: Colors.lightBlue, // Белый цвет для волны
+                color: Colors.blueAccent, // Белый цвет для волны
               ),
             ),
           ),
